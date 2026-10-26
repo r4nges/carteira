@@ -1,0 +1,10 @@
+.superpowers/
+docs/
+referencia/
+saida/
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.env*
+coletor/config.json
