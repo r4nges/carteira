@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks'
+import { Marca } from '../componentes/Marca'
 import type { ClienteAuth } from '../lib/supabase'
 
 export const ERRO_CREDENCIAL = 'E-mail ou senha incorretos.'
@@ -41,6 +42,7 @@ export function Login({ auth }: Props) {
   return (
     <div class="login">
       <form class="login__caixa" onSubmit={entrar} noValidate>
+        <Marca tamanho={48} />
         <h1 class="login__titulo">Carteira</h1>
         <p class="login__texto">Entre com o e-mail e a senha da sua conta.</p>
 

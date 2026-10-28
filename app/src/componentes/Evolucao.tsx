@@ -65,16 +65,17 @@ function moedaCurta(v: number): string {
   return moeda(v).replace(/,00$/, '')
 }
 
-function Linha({ pontos, descricao }: { pontos: Ponto[]; descricao: string }) {
+function Linha({ pontos, descricao, noBloco }: { pontos: Ponto[]; descricao: string; noBloco: boolean }) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const escuro = useMidia('(prefers-color-scheme: dark)')
 
   useEffect(() => {
     const el = canvas.current
     if (!el) return
-    const destaque = cor('--cor-destaque', '#1d4f73')
-    const suave = cor('--cor-tinta-suave', '#56625d')
-    const linha = cor('--cor-linha', '#dde3e0')
+    // No bloco cobalto do patrimônio o gráfico é branco; fora dele usa as cores do tema.
+    const destaque = noBloco ? '#ffffff' : cor('--cor-destaque', '#2335d9')
+    const suave = noBloco ? 'rgba(255, 255, 255, 0.8)' : cor('--cor-tinta-suave', '#596082')
+    const linha = noBloco ? 'rgba(255, 255, 255, 0.2)' : cor('--cor-linha', '#e1e4f2')
     const grafico = criarGrafico(el, {
       type: 'line',
       data: {
@@ -83,7 +84,7 @@ function Linha({ pontos, descricao }: { pontos: Ponto[]; descricao: string }) {
           {
             data: pontos.map((p) => p.patrimonio),
             borderColor: destaque,
-            backgroundColor: cor('--cor-destaque-fundo', '#e3ecf3'),
+            backgroundColor: noBloco ? 'rgba(255, 255, 255, 0.14)' : cor('--cor-destaque-fundo', '#e4e7fc'),
             borderWidth: 2,
             pointRadius: pontos.length > 40 ? 0 : 3,
             pointHoverRadius: 4,
@@ -107,7 +108,7 @@ function Linha({ pontos, descricao }: { pontos: Ponto[]; descricao: string }) {
       },
     })
     return () => grafico?.destroy()
-  }, [pontos, escuro])
+  }, [pontos, escuro, noBloco])
 
   return (
     <div class="grafico grafico--linha">
@@ -119,19 +120,23 @@ function Linha({ pontos, descricao }: { pontos: Ponto[]; descricao: string }) {
 interface Props {
   snapshots: Snapshot[]
   agora: Date
+  /** Desenhado sobre o bloco cobalto do patrimônio (cores claras). */
+  noBloco?: boolean
 }
 
 /** Evolução do patrimônio pelos snapshots de fechamento, com seletor de período. */
-export function Evolucao({ snapshots, agora }: Props) {
+export function Evolucao({ snapshots, agora, noBloco = false }: Props) {
   const [periodo, setPeriodo] = useState<Periodo>('Tudo')
   const todos = useMemo(() => pontosValidos(snapshots), [snapshots])
   // Só o dia entra na dependência: o relógio de 1 min não deve recriar o gráfico.
   const hoje = hojeSP(agora)
   const visiveis = useMemo(() => filtrarPontos(todos, periodo, hoje), [todos, periodo, hoje])
 
+  const classe = noBloco ? 'evolucao evolucao--bloco' : 'evolucao'
+
   if (todos.length === 0) {
     return (
-      <div class="evolucao">
+      <div class={classe}>
         <p class="neutro evolucao__aviso">
           O histórico começa no primeiro fechamento com pregão. Ainda não há registros.
         </p>
@@ -141,7 +146,7 @@ export function Evolucao({ snapshots, agora }: Props) {
 
   if (todos.length === 1) {
     return (
-      <div class="evolucao">
+      <div class={classe}>
         <p class="evolucao__inicio">{`Histórico começa em ${dataBR(todos[0].data)}`}</p>
         <p class="neutro evolucao__aviso">A linha aparece quando houver pelo menos dois fechamentos.</p>
       </div>
@@ -151,7 +156,7 @@ export function Evolucao({ snapshots, agora }: Props) {
   const resumo = visiveis.length >= 2 ? resumirEvolucao(visiveis) : ''
 
   return (
-    <div class="evolucao">
+    <div class={classe}>
       <div class="seletor" role="group" aria-label="Período da evolução">
         {PERIODOS.map(({ periodo: p, nome }) => (
           <button
@@ -168,7 +173,7 @@ export function Evolucao({ snapshots, agora }: Props) {
       </div>
       {visiveis.length >= 2 ? (
         <>
-          <Linha pontos={visiveis} descricao={`Evolução do patrimônio. ${resumo}`} />
+          <Linha pontos={visiveis} descricao={`Evolução do patrimônio. ${resumo}`} noBloco={noBloco} />
           <p class="evolucao__resumo" data-testid="resumo-evolucao">
             {resumo}
           </p>

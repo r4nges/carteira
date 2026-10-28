@@ -1,5 +1,5 @@
 // Gera os ícones do PWA em app/public sem dependências nem arquivos externos.
-// Desenho: rosca de composição (dois segmentos) sobre o azul-tinta do tema.
+// Desenho: rosca de composição (dois segmentos, branco e açafrão) sobre o cobalto do tema.
 // Uso: node scripts/gerar-icones.mjs
 import { writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -8,9 +8,9 @@ import { deflateSync } from 'node:zlib'
 
 const PUBLICO = join(dirname(fileURLToPath(import.meta.url)), '..', 'public')
 
-const FUNDO = [0x1d, 0x4f, 0x73] // --cor-destaque (claro)
+const FUNDO = [0x23, 0x35, 0xd9] // cobalto, --cor-destaque
 const SEGMENTO_A = [0xff, 0xff, 0xff]
-const SEGMENTO_B = [0x8d, 0xb6, 0xd9] // --cor-destaque (escuro)
+const SEGMENTO_B = [0xf2, 0xa9, 0x00] // açafrão, --cor-marca
 
 // Geometria em fração do lado; cabe na zona segura do maskable (raio 0,4).
 const R_EXTERNO = 0.3

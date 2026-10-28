@@ -1,6 +1,7 @@
 import type { JSX } from 'preact'
 import { CONSULTA_DESKTOP, useMidia } from '../lib/useMidia'
 import type { Rota } from '../lib/tipos'
+import { Marca } from './Marca'
 
 export const ROTAS: { rota: Rota; rotulo: string; icone: JSX.Element }[] = [
   {
@@ -52,6 +53,7 @@ export function Menu({ rota, aoNavegar }: Props) {
     <nav class={`menu menu--${layout}`} data-layout={layout} aria-label="Menu principal">
       {desktop && (
         <div class="menu__marca" aria-hidden="true">
+          <Marca />
           Carteira
         </div>
       )}

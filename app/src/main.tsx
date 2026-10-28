@@ -1,6 +1,8 @@
 import { render } from 'preact'
 import { App } from './App'
 import { obterSupabase } from './lib/supabase'
+import '@fontsource-variable/figtree'
+import '@fontsource-variable/bricolage-grotesque/wdth.css'
 import './estilos/tokens.css'
 import './estilos/base.css'
 

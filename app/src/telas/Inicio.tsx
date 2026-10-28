@@ -130,48 +130,54 @@ function PainelCarteira({ dados, agora, aoNavegar, aoAtualizar, atualizando, fal
       <BannerDefasado ativos={ativos} cotacoes={cotacoes} agora={agora} />
 
       <section class="inicio__resumo" aria-label="Patrimônio">
-        <p class="inicio__rotulo">Patrimônio</p>
-        <p class="inicio__patrimonio num" data-testid="patrimonio">
-          {resumo.total > 0 ? moeda(resumo.total) : 'valor indisponível'}
-        </p>
-        <p class="inicio__linha-dia">
-          {movimentos.length > 0 ? (
-            <span class={`num ${classeSinal(resumo.variacaoReais)}`} data-testid="variacao-dia">
-              {`${comMais(resumo.variacaoReais, moeda(resumo.variacaoReais))} (${comMais(resumo.variacaoPct, pct(resumo.variacaoPct))}) ${quando}`}
-            </span>
-          ) : (
-            <span class="neutro" data-testid="variacao-dia">
-              variação do dia indisponível
-            </span>
-          )}
-          <Atualizado dados={dados} agora={agora} />
-          {aoAtualizar && (
-            <button
-              type="button"
-              class="botao botao--texto"
-              onClick={() => {
-                if (!atualizando) aoAtualizar()
-              }}
-              disabled={atualizando}
-              aria-busy={atualizando ? 'true' : undefined}
-            >
-              Atualizar
-            </button>
-          )}
-          {falhaAtualizacao && (
-            <span class="neutro inicio__atualizado" role="status">
-              Não foi possível atualizar agora.
-            </span>
-          )}
-        </p>
-        {movimentos.length > 0 && foraDoDia > 0 && (
-          <p class="neutro inicio__nota">{`Variação calculada com ${movimentos.length} de ${deBolsa.length} ativos de bolsa.`}</p>
-        )}
-        {estimados > 0 && (
-          <p class="neutro inicio__nota">
-            {`${estimados} ${estimados === 1 ? 'valor é estimado' : 'valores são estimados'} pela planilha, não pela cotação.`}
+        <div class="inicio__resumo-texto">
+          <p class="inicio__rotulo">Patrimônio</p>
+          <p class="inicio__patrimonio num" data-testid="patrimonio">
+            {resumo.total > 0 ? moeda(resumo.total) : 'valor indisponível'}
           </p>
-        )}
+          <p class="inicio__linha-dia">
+            {movimentos.length > 0 ? (
+              <span class={`num ${classeSinal(resumo.variacaoReais)}`} data-testid="variacao-dia">
+                {`${comMais(resumo.variacaoReais, moeda(resumo.variacaoReais))} (${comMais(resumo.variacaoPct, pct(resumo.variacaoPct))}) ${quando}`}
+              </span>
+            ) : (
+              <span class="neutro" data-testid="variacao-dia">
+                variação do dia indisponível
+              </span>
+            )}
+            <Atualizado dados={dados} agora={agora} />
+            {aoAtualizar && (
+              <button
+                type="button"
+                class="botao botao--texto"
+                onClick={() => {
+                  if (!atualizando) aoAtualizar()
+                }}
+                disabled={atualizando}
+                aria-busy={atualizando ? 'true' : undefined}
+              >
+                Atualizar
+              </button>
+            )}
+            {falhaAtualizacao && (
+              <span class="neutro inicio__atualizado" role="status">
+                Não foi possível atualizar agora.
+              </span>
+            )}
+          </p>
+          {movimentos.length > 0 && foraDoDia > 0 && (
+            <p class="neutro inicio__nota">{`Variação calculada com ${movimentos.length} de ${deBolsa.length} ativos de bolsa.`}</p>
+          )}
+          {estimados > 0 && (
+            <p class="neutro inicio__nota">
+              {`${estimados} ${estimados === 1 ? 'valor é estimado' : 'valores são estimados'} pela planilha, não pela cotação.`}
+            </p>
+          )}
+        </div>
+        <div class="inicio__resumo-grafico">
+          <h2 class="so-leitor">Evolução do patrimônio</h2>
+          <Evolucao snapshots={snapshots} agora={agora} noBloco />
+        </div>
       </section>
 
       <div class="inicio__graficos">
@@ -185,38 +191,31 @@ function PainelCarteira({ dados, agora, aoNavegar, aoAtualizar, atualizando, fal
             <p class="neutro">Sem valores para mostrar a composição.</p>
           )}
         </section>
-        <section class="cartao-grafico" aria-labelledby="titulo-evolucao">
-          <h2 class="cartao-grafico__titulo" id="titulo-evolucao">
-            Evolução
+        <section class="cartao-grafico" aria-labelledby="titulo-movimentos">
+          <h2 class="cartao-grafico__titulo" id="titulo-movimentos">
+            {tituloMovimentos}
           </h2>
-          <Evolucao snapshots={snapshots} agora={agora} />
+          {movimentos.length > 0 ? (
+            <ul class="movimentos" aria-label={`${tituloMovimentos}, do maior impacto em R$ para o menor`}>
+              {movimentos.map((m) => (
+                <li key={m.codigo} class="movimentos__item">
+                  <span class="movimentos__codigo">{m.codigo}</span>
+                  {estaDefasado(cotacoes[m.codigo], agora) && <span class="etiqueta etiqueta--aviso">defasado</span>}
+                  <span class={`num movimentos__pct ${classeSinal(m.pct)}`}>{comMais(m.pct, pct(m.pct, 2))}</span>
+                  <span class={`num movimentos__reais ${classeSinal(m.reais)}`}>{comMais(m.reais, moeda(m.reais))}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="neutro">Sem cotação com fechamento anterior para calcular a variação do dia.</p>
+          )}
+          {movimentos.length > 0 && foraDoDia > 0 && (
+            <p class="neutro inicio__nota">
+              {`${foraDoDia} ${foraDoDia === 1 ? 'ativo sem fechamento anterior ou sem cotação fica' : 'ativos sem fechamento anterior ou sem cotação ficam'} fora da lista.`}
+            </p>
+          )}
         </section>
       </div>
-
-      <section class="cartao-grafico" aria-labelledby="titulo-movimentos">
-        <h2 class="cartao-grafico__titulo" id="titulo-movimentos">
-          {tituloMovimentos}
-        </h2>
-        {movimentos.length > 0 ? (
-          <ul class="movimentos" aria-label={`${tituloMovimentos}, do maior impacto em R$ para o menor`}>
-            {movimentos.map((m) => (
-              <li key={m.codigo} class="movimentos__item">
-                <span class="movimentos__codigo">{m.codigo}</span>
-                {estaDefasado(cotacoes[m.codigo], agora) && <span class="etiqueta etiqueta--aviso">defasado</span>}
-                <span class={`num movimentos__pct ${classeSinal(m.pct)}`}>{comMais(m.pct, pct(m.pct, 2))}</span>
-                <span class={`num movimentos__reais ${classeSinal(m.reais)}`}>{comMais(m.reais, moeda(m.reais))}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p class="neutro">Sem cotação com fechamento anterior para calcular a variação do dia.</p>
-        )}
-        {movimentos.length > 0 && foraDoDia > 0 && (
-          <p class="neutro inicio__nota">
-            {`${foraDoDia} ${foraDoDia === 1 ? 'ativo sem fechamento anterior ou sem cotação fica' : 'ativos sem fechamento anterior ou sem cotação ficam'} fora da lista.`}
-          </p>
-        )}
-      </section>
     </div>
   )
 }

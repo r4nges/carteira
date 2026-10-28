@@ -4,8 +4,8 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // Cores do manifesto: as mesmas de src/estilos/tokens.css (tema claro).
-const COR_FUNDO = '#f2f4f3'
-const COR_TEMA = '#f2f4f3'
+const COR_FUNDO = '#f3f4fa'
+const COR_TEMA = '#f3f4fa'
 
 export default defineConfig(({ mode }) => ({
   // Caminhos relativos: funciona na raiz ou num subcaminho (GitHub Pages).
