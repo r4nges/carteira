@@ -1,0 +1,102 @@
+# Agendamento do coletor. Horários em UTC (Brasília = UTC-3).
+# Um cron não carrega o modo: cada job compara github.event.schedule com o seu cron.
+# Para desligar a nuvem (plano B local, ver coletor/README.md), comente o bloco `schedule:`.
+name: coletor
+
+on:
+  schedule:
+    - cron: "0,30 13-20 * * 1-5"   # pregao: 10h00 a 17h30, a cada 30 min, dias úteis
+    - cron: "30 21 * * 1-5"        # fechamento: 18h30, dias úteis
+    - cron: "10 11-23,0-1 * * *"   # noticias: de hora em hora (08h10 a 22h10), todos os dias
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "Modo do coletor"
+        type: choice
+        required: true
+        default: fechamento
+        options:
+          - pregao
+          - fechamento
+          - noticias
+
+# Concorrência por job (não da execução inteira): pregao e fechamento chamam a brapi grátis, que aceita
+# 1 requisição simultânea, então dividem o grupo `coletor`. O job noticias não usa a brapi e tem grupo
+# próprio: assim uma execução de notícias não cancela um fechamento que esteja esperando na fila (o
+# GitHub guarda uma só execução pendente por grupo; uma terceira chegando cancela a pendente).
+
+permissions:
+  contents: read
+
+jobs:
+  pregao:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '0,30 13-20 * * 1-5')
+      || (github.event_name == 'workflow_dispatch' && inputs.modo == 'pregao')
+    concurrency:
+      group: coletor
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: coletor/requirements.txt
+      - run: pip install -r coletor/requirements.txt
+      - name: Coletar
+        run: python coletor/coletor.py --modo pregao
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          BRAPI_TOKEN: ${{ secrets.BRAPI_TOKEN }}
+
+  fechamento:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '30 21 * * 1-5')
+      || (github.event_name == 'workflow_dispatch' && inputs.modo == 'fechamento')
+    concurrency:
+      group: coletor
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    # Pior caso: 429 persistente na brapi gasta até 3 x 60 s por ticker.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: coletor/requirements.txt
+      - run: pip install -r coletor/requirements.txt
+      - name: Coletar
+        run: python coletor/coletor.py --modo fechamento
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          BRAPI_TOKEN: ${{ secrets.BRAPI_TOKEN }}
+
+  noticias:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '10 11-23,0-1 * * *')
+      || (github.event_name == 'workflow_dispatch' && inputs.modo == 'noticias')
+    concurrency:
+      group: coletor-noticias
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: coletor/requirements.txt
+      - run: pip install -r coletor/requirements.txt
+      - name: Coletar
+        run: python coletor/coletor.py --modo noticias
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}

@@ -8,3 +8,7 @@ __pycache__/
 *.pyc
 .env*
 coletor/config.json
+!app/.env.example
+# Planilhas da carteira (dados pessoais): nunca no repositório público
+*.xlsx
+*.xls

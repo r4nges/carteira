@@ -1,0 +1,115 @@
+/*
+ * Tokens visuais da Carteira.
+ * Direção: limpo, número como protagonista, fundo sóbrio, sem ornamento.
+ * Verde e vermelho só para alta e baixa do dia; o resto é tinta e cinza.
+ * O destaque (azul-tinta) marca seleção, foco e barras de proporção.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Cor — tema claro */
+  --cor-fundo: #f2f4f3;
+  --cor-superficie: #ffffff;
+  --cor-superficie-2: #e9edeb;
+  --cor-tinta: #17201d;
+  --cor-tinta-suave: #56625d;
+  --cor-linha: #dde3e0;
+  --cor-destaque: #1d4f73;
+  --cor-destaque-fundo: #e3ecf3;
+  --cor-sobre-destaque: #ffffff;
+  --cor-alta: #1b7a4b;
+  --cor-baixa: #b3362b;
+  --cor-aviso: #8a5a00;
+  --cor-aviso-fundo: #fbf0d9;
+
+  /* Séries dos gráficos: bolsa em cores distintas; renda fixa em tons neutros. */
+  --cor-serie-1: #1d4f73;
+  --cor-serie-2: #2f7f86;
+  --cor-serie-3: #b0731a;
+  --cor-serie-4: #7a4b8f;
+  --cor-serie-5: #4f8a3c;
+  --cor-serie-6: #a0522d;
+  --cor-rf-1: #6b7772;
+  --cor-rf-2: #98a39e;
+  --cor-rf-3: #c0c8c4;
+
+  /* Tipografia: a fonte do sistema, com algarismos tabulares em todo lugar. */
+  --fonte: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont,
+    'SF Pro Text', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --fonte-numeros: 'Segoe UI Variable Display', 'Segoe UI', -apple-system,
+    BlinkMacSystemFont, 'SF Pro Display', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Escala ~1,25 a partir de 15 px */
+  --texto-xs: 0.75rem; /* 12 */
+  --texto-sm: 0.8125rem; /* 13 */
+  --texto-base: 0.9375rem; /* 15 */
+  --texto-md: 1.125rem; /* 18 */
+  --texto-lg: 1.5rem; /* 24 */
+  --texto-xl: 2.25rem; /* 36: patrimônio */
+  --texto-xxl: 3rem; /* 48: patrimônio no desktop */
+
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-forte: 600;
+
+  --entrelinha: 1.5;
+  --entrelinha-justa: 1.15;
+  --espacamento-numero: -0.015em;
+
+  /* Espaço: base 4 px */
+  --esp-1: 0.25rem;
+  --esp-2: 0.5rem;
+  --esp-3: 0.75rem;
+  --esp-4: 1rem;
+  --esp-5: 1.5rem;
+  --esp-6: 2rem;
+  --esp-7: 3rem;
+
+  /* Forma: sem sombra; borda de 1 px separa superfícies. */
+  --raio-selo: 4px;
+  --raio-caixa: 8px;
+  --borda: 1px solid var(--cor-linha);
+
+  /* Disposição */
+  --largura-menu: 13.5rem;
+  --altura-barra: 3.75rem;
+  --largura-conteudo: 72rem;
+  --largura-texto: 40rem;
+
+  --transicao: 120ms ease-out;
+}
+
+/* Tema escuro pelo sistema */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cor-fundo: #101513;
+    --cor-superficie: #171d1b;
+    --cor-superficie-2: #1f2724;
+    --cor-tinta: #e4eae7;
+    --cor-tinta-suave: #96a39d;
+    --cor-linha: #26302c;
+    --cor-destaque: #8db6d9;
+    --cor-destaque-fundo: #1b2a36;
+    --cor-sobre-destaque: #0d1a24;
+    --cor-alta: #5dbe8a;
+    --cor-baixa: #ee7f72;
+    --cor-aviso: #e0b160;
+    --cor-aviso-fundo: #2e2615;
+    --cor-serie-1: #8db6d9;
+    --cor-serie-2: #6cc0c7;
+    --cor-serie-3: #e0b160;
+    --cor-serie-4: #c39ad6;
+    --cor-serie-5: #8fcb7a;
+    --cor-serie-6: #e09a78;
+    --cor-rf-1: #8a9690;
+    --cor-rf-2: #66726c;
+    --cor-rf-3: #46514c;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transicao: 0ms;
+  }
+}

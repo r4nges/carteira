@@ -1,0 +1,24 @@
+# O GitHub pausa workflows agendados após 60 dias sem atividade no repositório.
+# Uma vez por mês, este workflow reabilita os workflows para evitar a pausa.
+name: manter-ativo
+
+on:
+  schedule:
+    - cron: "0 12 1 * *"   # dia 1 de cada mês, 09h00 em Brasília
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  reabilitar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Reabilitar workflows
+        run: |
+          for wf in coletor.yml manter-ativo.yml; do
+            gh api --method PUT "/repos/${GITHUB_REPOSITORY}/actions/workflows/${wf}/enable"
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
