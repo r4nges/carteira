@@ -28,7 +28,7 @@ import unicodedata
 from datetime import date, datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlencode, urlsplit
 
 import requests
 
@@ -275,16 +275,19 @@ def sgs(codigo: int, n: int) -> list[dict]:
 
 def focus_anual(indicador: str, ano: int):
     url = "https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais"
-    r = get(
-        url,
-        params={
+    # O Olinda não decodifica "+" como espaço (400 em $filter e $orderby): espaço vai como %20.
+    params = urlencode(
+        {
             "$top": 1,
             "$filter": f"Indicador eq '{indicador}' and DataReferencia eq '{ano}' and baseCalculo eq 0",
             "$orderby": "Data desc",
             "$select": "Indicador,Data,DataReferencia,Mediana",
             "$format": "json",
         },
+        quote_via=quote,
+        safe="$',()",
     )
+    r = get(url, params=params)
     v = r.json().get("value") or []
     return {"data": v[0]["Data"], "mediana": v[0]["Mediana"]} if v else None
 
